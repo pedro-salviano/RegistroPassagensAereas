@@ -1,0 +1,53 @@
+/*
+ * File: insertRandomDayInfo
+ * Project: mongoscripts
+ * Create Date: Sunday, 1st December 2024
+ * ----
+ * HISTORY:
+ * Date      	By	Comments
+ * ----------	---	---------------------------------------------------------
+ */
+
+/* https://dev.to/adamkdean/update-all-values-in-a-mongodb-collection-to-a-random-range-17oc */
+/* https://www.mongodb.com/pt-br/docs/mongodb-shell/write-scripts/#write-scripts */
+
+db = connect('mongodb://localhost:27017/Trabalho1_PassagensAereas');
+
+db.TicketSupply.find({mes: {$in: [1,3,5,7,8,10,12]}}).forEach(
+    function(doc) {
+        db.TicketSupply.updateOne(
+            {_id: doc._id},
+            {$set: 
+                {
+                    "dia": Math.ceil(Math.random() * 31)
+                }
+            }
+        )
+    }
+)
+
+db.TicketSupply.find({mes: {$in: [4,6,9,11]}}).forEach(
+    function(doc) {
+        db.TicketSupply.updateOne(
+            {_id: doc._id},
+            {$set: 
+                {
+                    "dia": Math.ceil(Math.random() * 30)
+                }
+            }
+        )
+    }
+)
+
+db.TicketSupply.find({mes: {$in: [2]}}).forEach(
+    function(doc) {
+        db.TicketSupply.updateOne(
+            {_id: doc._id},
+            {$set: 
+                {
+                    "dia": Math.ceil(Math.random() * 28)
+                }
+            }
+        )
+    }
+)
