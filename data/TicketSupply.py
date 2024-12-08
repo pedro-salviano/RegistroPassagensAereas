@@ -7,8 +7,16 @@ HISTORY:
 Date      	By	Comments
 ----------	---	---------------------------------------------------------
 '''
-from mongoengine import Document, StringField, IntField, ObjectIdField
-from mongoengine.queryset.visitor import Q
+from mongoengine import Document, StringField, IntField, EmbeddedDocument, EmbeddedDocumentField, BooleanField
+
+
+class Airplane(EmbeddedDocument):
+    modelo = StringField(required = True)
+    matricula = StringField(min_length=5, max_length=8, required= True)
+
+class Details(EmbeddedDocument):
+    janela= BooleanField(required=False)
+    aeronave = EmbeddedDocumentField(Airplane, required= False)
 
 class TicketSupply(Document):
     ano = IntField(required=True)
@@ -20,7 +28,18 @@ class TicketSupply(Document):
     tarifa = StringField(required=True)
     tickets = IntField(required=True, min_value=0)
 
-    meta = {'db_alias': 'default'}
+    caracteristicas= EmbeddedDocumentField(Details, required= False)
+
+    meta = {
+        'db_alias': 'default',
+        'auto_create_index': True,
+        'auto_create_index_on_save': True,
+        'indexes':[
+            {
+                'fields':[('$icao_origem', '$icao_destino'), 'ano', 'mes', 'dia']
+            }
+        ]
+    }
 
     @classmethod
     def findSupply(cls, icao_origem='', icao_destino='', dia='', mes='', ano=''):

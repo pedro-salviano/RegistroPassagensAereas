@@ -13,7 +13,7 @@ Date      	By	Comments
 from repository.databaseManager import MongoEngineManager
 from data.Airport import Airport
 from data.Airline import Airline
-from data.TicketSupply import TicketSupply
+from data.TicketSupply import TicketSupply, Airplane, Details
 from mongoengine.queryset.visitor import Q
 from pprint import PrettyPrinter
 import datetime
@@ -51,6 +51,32 @@ def find():
             pp.pprint(json.loads(ticket.to_json()))
     
     return icao_origem, icao_destino, day, month, year
+
+def addAirplane() -> Airplane:
+    modelo = input('Informe o modelo: ')
+    matricula_input = input('Informe a matricula da aeronave: ')
+    while(len(matricula_input) not in range(5,9)):
+        matricula_input = input('Matricula inválida, tente novamente: ')
+    
+    matricula = matricula_input
+
+    return Airplane(modelo = modelo, matricula = matricula)
+
+def addDetails() -> Details:
+    match input('Oferta para janela? \'S\' para janela, \'N\' para corredor, outra tecla para indiferente:  ').lower():
+        case 's':
+            janela = True
+        case 'n':
+            janela = False
+        case _:
+            janela = None
+    
+    aeronave:Airplane = None
+    if(input('Deseja adicionar detalhes sobre a aeronave? \'s\'/[\'n\']: ').lower() == 's'):
+        aeronave:Airplane = addAirplane()
+    
+    return Details(janela = janela, aeronave = aeronave)
+    
 
 def offer():
     empresa: Airline
@@ -126,6 +152,10 @@ def offer():
 
         tarifa_partes = tarifa.split(',')
         tarifa = tarifa if (len(tarifa_partes) == 2) else tarifa + ',00'
+
+        caracteristicas:Details = None
+        if(input('Deseja adicionar detalhes da oferta? \'Y\'/\'S\' para adicionar, outra tecla para pular: ').lower() in ['y', 's']):
+            caracteristicas: Details = addDetails()                
         
 
         passagens: TicketSupply = TicketSupply(
@@ -136,7 +166,8 @@ def offer():
             dia = data.day,
             mes = data.month,
             ano = data.year,
-            tarifa = tarifa
+            tarifa = tarifa,
+            caracteristicas = caracteristicas
         )
 
         print("Confirme a criação da oferta de passagens [(s) confirma; (m) modificar; (outra tecla) sair] :\n\n")
@@ -153,30 +184,30 @@ def offer():
 
 def consume():
     (icao_origem, icao_destino, dia, mes, ano) = find()
-    houveRefinamento:bool = False
+    refined:bool = False
 
     while(not icao_origem.isalpha()):
-       houveRefinamento = True
+       refined = True
        icao_origem = input("Informe o ICAO do aeroporto de origem: ").upper()
 
     while(not icao_destino.isalpha()):
-       houveRefinamento = True
+       refined = True
        icao_destino = input("Informe o ICAO do aeroporto de destino: ").upper()
 
     while(not ano.isdigit() or int(ano)< 2023 or int(ano)> 2027):
-        houveRefinamento = True
+        refined = True
         ano = input("Informe um ano válido: ")
 
     ano = int(ano)
 
     while(not mes.isdigit() or int(mes)< 1 or int(mes)> 12):
-        houveRefinamento = True
+        refined = True
         mes = input("Informe um mês válido: ")
 
     mes = int(mes)
 
     while(not dia.isdigit() or int(dia)< 1 or int(dia)> calendar.monthrange(ano, mes)[1]):
-        houveRefinamento = True
+        refined = True
         dia = input("Informe um dia válido: ")
 
     dia = int(dia)
@@ -184,7 +215,7 @@ def consume():
     with MongoEngineManager() as db:
         tickets = TicketSupply.findSupply(icao_origem=icao_origem, icao_destino=icao_destino, dia=dia, mes=mes, ano=ano)
 
-    if(houveRefinamento):
+    if(refined):
         print("Ofertas encontradas após refinamento:")
         for ticket in tickets:
             print('\n')
@@ -218,7 +249,7 @@ def consume():
     aquisicao['tickets'] = tickets_input
 
     print("Confirme a aquisição da oferta de passagem [(s) confirma; (m) modificar; (outra tecla) sair] :\n\n")
-    pp.pprint(json.loads(aquisicao))
+    pp.pprint(aquisicao)
 
     match input().lower():
         case "s":
@@ -234,9 +265,6 @@ def consume():
         case _:
             return
 
-
-    
-        
 
 def main():
     while(True):
