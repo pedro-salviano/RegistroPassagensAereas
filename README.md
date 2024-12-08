@@ -20,7 +20,7 @@ Disponível no sistema de dados abertos no caminho “Aerodromos/Aeródromos Pú
 Os dados originais podem ser acessados nas respectivas fontes listadas na seção de aplicação, porém também foram disponibilizados no repositório do github (https://github.com/pedro-salviano/RegistroPassagensAereas/tree/main/Dados/OriginalData). Os dados originais passaram por processamento, sendo que os conjuntos de Tarifas Transporte Aéreo Passageiros Domésticos foram agregados em um único csv utilizando a ferramenta https://mightymerge.io/merge-csv-files/, as colunas de todos os conjuntos foram renomeadas, e os dados já processados podem ser acessados zipados em https://github.com/pedro-salviano/RegistroPassagensAereas/blob/main/Dados/DadosInsercao.zip. Após inseridos, os dados de tarifas precisaram receber um dia, uma vez que o conjunto original inclui apenas as informações das diferentes tarifas aplicadas em cada mês, para tal o script https://github.com/pedro-salviano/RegistroPassagensAereas/blob/main/Dados/mongoscripts/insertRandomDayInfo foi utilizado. 
 
 ## Vídeo Pitch
-	https://drive.google.com/file/d/1zVuX2xA6rC_7O3f6dHrrlnJkdCOmXI4y/view?usp=drive_link 
+https://drive.google.com/file/d/1zVuX2xA6rC_7O3f6dHrrlnJkdCOmXI4y/view?usp=drive_link 
 
 ## Referências
 MongoEngine User Guide: https://docs.mongoengine.org/guide/ 
